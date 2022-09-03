@@ -4,7 +4,7 @@ services:
     container_name: app_frontend
     build: ./frontend
     ports:
-      - 3001:3001
+      - 3000:3000
     working_dir: /frontend
     volumes:
       - ./frontend/src:/frontend/src
@@ -12,7 +12,7 @@ services:
       backend:
         condition: service_healthy
     healthcheck:
-      test: ['CMD', 'lsof', '-t', '-i:3001']
+      test: ['CMD', 'lsof', '-t', '-i:3000']
       timeout: 10s
       retries: 5
 
@@ -20,21 +20,21 @@ services:
     container_name: app_backend  
     build: ./backend
     ports:
-      - 3000:3000
+      - 3001:3001
     working_dir: /backend
     volumes:
       - ./backend/src:/backend/src
-    depends_on:
-      mongo_db:
-        condition: service_healthy
+    # depends_on:
+    #   mongo_db:
+    #     condition: service_healthy
     environment:
-      - APP_PORT=3000
+      - APP_PORT=3001
       - DB_HOST=mongo_db
       - DB_USER=root
       - DB_PASS=123456
-      - DB_PORT=3306
+      - DB_PORT=27017
     healthcheck:
-      test: ['CMD', 'lsof', '-t', '-i:3000']
+      test: ['CMD', 'lsof', '-t', '-i:3001']
       timeout: 10s
       retries: 5
 
@@ -43,13 +43,13 @@ services:
     container_name: radarfit
     platform: linux/x86_64
     ports:
-      - 3306:3306
+      - 27017:27017
     environment:
       - MONGODB_ROOT_PASSWORD=123456
     restart: 'always'
-    healthcheck:
-      test: ["CMD","ping", "-h", "localhost"]
-      timeout: 10s
-      retries: 5
+    # healthcheck:
+    #   test: ["CMD","ping", "-h", "localhost"]
+    #   timeout: 10s
+    #   retries: 5
     cap_add:
       - SYS_NICE
