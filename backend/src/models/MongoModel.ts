@@ -1,32 +1,37 @@
+/* eslint-disable no-underscore-dangle */
 import { isValidObjectId, Model, UpdateQuery } from 'mongoose';
 import { ErrorTypes } from '../catalogErrors/errors';
 import { IModel } from '../interfaces/IModel';
 
 abstract class MongoModel<T> implements IModel<T> {
-  protected model: Model<T>;
+  protected _model: Model<T>;
 
   constructor(model: Model<T>) {
-    this.model = model;
+    this._model = model;
   }
 
   public async create(obj: T): Promise<T> {
-    return this.model.create({ ...obj });
+    return this._model.create({ ...obj });
   }
 
   public async read(): Promise<T[]> {
-    return this.model.find();
+    return this._model.find();
+  }
+
+  public async readSearch(p: any): Promise<T[]> {
+    return this._model.find({ p });
   }
 
   public async readOne(_id: string): Promise<T | null> {
     if (!isValidObjectId(_id)) throw new Error(ErrorTypes.InvalidMongoId);
 
-    return this.model.findOne({ _id });
+    return this._model.findOne({ _id });
   }
 
   public async update(_id: string, obj: Partial<T>): Promise<T | null> {
     if (!isValidObjectId(_id)) throw new Error(ErrorTypes.InvalidMongoId);
 
-    return this.model.findByIdAndUpdate(
+    return this._model.findByIdAndUpdate(
       { _id },
       { ...obj } as UpdateQuery<T>,
       { new: true },
@@ -36,7 +41,7 @@ abstract class MongoModel<T> implements IModel<T> {
   public async delete(_id: string): Promise<T | null> {
     if (!isValidObjectId(_id)) throw Error(ErrorTypes.InvalidMongoId);
 
-    return this.model.findByIdAndRemove({ _id });
+    return this._model.findByIdAndRemove({ _id });
   }
 }
 
