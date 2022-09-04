@@ -3,52 +3,45 @@ services:
   frontend:
     build: ./frontend
     ports:
-      - 3000:3000
+      - 3001:3001
     working_dir: /app-frontend
-    command: npm start
     volumes:
       - ./frontend/src:/app-frontend/src
     depends_on:
       backend:
         condition: service_healthy
     healthcheck:
-      test: ['CMD', 'lsof', '-t', '-i:3000']
+      test: ['CMD', 'lsof', '-t', '-i:3001']
       timeout: 10s
       retries: 5
-
   backend:
     build: ./backend
     ports:
-      - 3001:3001
+      - 3000:3000
     working_dir: /app-backend
     command: npm run dev
     volumes:
       - ./backend/src:/app-backend/src
     # depends_on:
-    #   mongo_db:
+    #   mongodb:
     #     condition: service_healthy
     environment:
-      - APP_PORT=3001
-      - DB_HOST=mongo_db
-      - DB_USER=root
-      - DB_PASS=123456
-      - DB_PORT=27017
+      - MONGO_URI=mongodb://mongodb:27017/FitShop
     healthcheck:
-      test: ['CMD', 'lsof', '-t', '-i:3001']
+      test: ['CMD', 'lsof', '-t', '-i:3000']
       timeout: 10s
       retries: 5
-
-  mongo_db:
+  mongodb:
     image: mongo:5.0.7
-    container_name: radarfit
+    container_name: mongodb
     platform: linux/x86_64
     ports:
       - 27017:27017
     environment:
-      - MONGODB_ROOT_PASSWORD=123456
+      - MONGO_ROOT_PASSWORD=123456
     restart: 'always'
     # healthcheck:
-    #   test: ["CMD","ping", "-h", "localhost"]
+    #   test: ['CMD', 'ping', '-h', 'localhost']
     #   timeout: 10s
     #   retries: 5
     cap_add:
